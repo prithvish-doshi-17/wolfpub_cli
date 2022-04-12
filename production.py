@@ -1,6 +1,9 @@
 from functions import get_input
+from functions import generate_output
+import requests
 MIN_OP = 1
-MAX_OP = 9
+MAX_OP = 10
+
 
 def add_edition():
     print("Enter information of new book edition:")
@@ -11,7 +14,9 @@ def add_edition():
         "book_id": get_input("Book ID: ", ["null"]),
         "is_available": True
     }
-    # call API
+    response = requests.get()  # will add similarly in all other functions accroding to type of HTTP request
+    generate_output(response)
+
 
 def add_issue():
     print("Enter information of new periodical issue:")
@@ -23,6 +28,7 @@ def add_issue():
         "is_available": True
     }
     # call API
+
 
 def update_edition():
     print("Update book edition:")
@@ -36,6 +42,7 @@ def update_edition():
     }
     # call API
 
+
 def update_issue():
     print("Update periodical issue:")
     issue = {
@@ -48,8 +55,10 @@ def update_issue():
     }
     # call API
 
-def update_article_chapter():  ## TODO
+
+def update_article_chapter():  # TODO
     return 0
+
 
 def update_article_text():
     print("Update article text:")
@@ -60,6 +69,7 @@ def update_article_text():
     }
     # call API
 
+
 def find_book():
     print("Find book:")
     book_filter = {
@@ -69,8 +79,10 @@ def find_book():
     }
     # call API
 
+
 def find_article():
     return 0
+
 
 def add_payment():
     print("Add a payment for author/editor:")
@@ -81,6 +93,7 @@ def add_payment():
         'send_date': get_input("Payment sent date: ", ["null"]),
     }
     # call API
+
 
 def claim_payment():
     print("Claim a payment by author/editor:")
@@ -120,10 +133,10 @@ def operations():
           "2. Add an issue of a periodical\n"
           "3. Update book edition\n"
           "4. Update periodical issue\n"
-          "5. Enter/update an article or chapter\n" ## TODO
+          "5. Enter/update an article or chapter\n"  # TODO
           "6. Enter/Update text for an article\n"
           "7. Find book by topic / date / author's name\n"
-          "8. Find article by..." ## TODO
+          "8. Find article by..."  # TODO
           "9. Enter a payment for author / editor\n"
           "10. Claim payment by addressee\n")
 

@@ -1,6 +1,9 @@
 from functions import get_input
+from functions import generate_output
+import requests
 MIN_OP = 1
 MAX_OP = 9
+
 
 def enter_new_publication():
     print("Enter publication information:")
@@ -9,9 +12,10 @@ def enter_new_publication():
         'topic': get_input("Topic: ", ["null"]),
         'publication_date': get_input("Publication Date (MM/DD/YYYY): ", ["null", "date"]),
         'price': get_input("Price: ", ["null", "float"])
-        ## book/periodical info - where do you want it
+        # book/periodical info - where do you want it
     }
     # call API
+
 
 def update_publication():
     print("Enter publication information to be updated:")
@@ -23,6 +27,7 @@ def update_publication():
         'price': get_input("Price: ", [])
     }
     # call API
+
 
 def assign_editors():
     print("Assign editor(s) to a publication:")
@@ -44,7 +49,7 @@ def view_publications():
     # call API
 
 
-def edit_toc():  ## TODO
+def edit_toc():  # TODO
     return 0
 
 
@@ -56,10 +61,11 @@ def add_article():
         'title': get_input("Title: ", ["null"]),
         'topic': get_input("Topic: ", ["null"]),
         'text': get_input("Text: ", [])
-        ## not adding journalist name as we are removing that attribute, could see it in serializers though
-        ## TODO: Update serializers
+        # not adding journalist name as we are removing that attribute, could see it in serializers though
+        # TODO: Update serializers
     }
     # call API
+
 
 def delete_article():
     print("Delete article from a periodical:")
@@ -69,6 +75,7 @@ def delete_article():
     }
     # call API
 
+
 def add_chapter():
     print("Add article to a periodical:")
     chapter_details = {
@@ -77,6 +84,7 @@ def add_chapter():
         'chapter_text': get_input("Text: ", ["null"])
     }
     # call API
+
 
 def delete_chapter():
     print("Delete article from a periodical:")
@@ -114,7 +122,7 @@ def operations():
           "2. Update a publication\n"
           "3. Assign editor(s) to publication\n"
           "4. View publications related to any editor\n"
-          "5. Edit table of contents of a publication\n"  ## TODO
+          "5. Edit table of contents of a publication\n"  # TODO
           "6. Add article for a periodical\n"
           "7. Delete article from a periodical\n"
           "8. Add chapter to a book\n"
