@@ -1,6 +1,9 @@
+import time
+import traceback
+import requests
 from functions import get_input
 from functions import generate_output
-import requests
+import constants as c
 MIN_OP = 1
 MAX_OP = 5
 yes = ["yes", "y"]
@@ -18,13 +21,14 @@ def enter_distributor():
         'contact_email': get_input("Contact email: ", []),
         'periodicity': get_input("Periodicity: ", [])
     }
-    # call API
+    response = requests.post(c.new_distributor, distributor)
+    generate_output(response)
 
 
 def update_distributor():
     print("Update information of a distributor:")
     distributor = {
-        'distributor_id': get_input("Distributor ID: ", ["null"]),  # TODO: missing in DISTRIBUTOR_ARGUMENTS in serializers
+        'distributor_id': get_input("Distributor ID: ", ["null"]),
         'name': get_input("Name: ", []),
         'distributor_type': get_input("Type: ", []),
         'address': get_input("Address: ", []),
@@ -34,7 +38,8 @@ def update_distributor():
         'contact_email': get_input("Contact email: ", []),
         'periodicity': get_input("Periodicity: ", [])
     }
-    # call API
+    response = requests.patch(c.update_distributor, distributor)
+    generate_output(response)
 
 
 def delete_distributor():
@@ -42,32 +47,36 @@ def delete_distributor():
     distributor = {
         'distributor_id': get_input("Distributor ID: ", ["null"])
     }
-    # call API
+    response = requests.delete(c.base_url)  # generate URL here
+    generate_output(response)
 
 
 def new_order():
     print("Add a new order:")
-    pub_type = get_input("What do you want to order? (Books/Periodicals): ", ["null"])  # no checks here
+    pub_type = get_input("What do you want to order? (Enter 1 for Books, 2 for Periodicals): ", ["null", "1_2"])
     choice = "yes"
-    orders = set()
+    orders = []
     if pub_type == "Books":
         while str.lower(choice) in yes:
             pub_details = {
                 'book_id': get_input("Book ID: ", ["null"]),
-                'edition': get_input("Edition: ", ["null"]),
+                'edition': get_input("Edition: ", ["null", "int"]),
                 'quantity': get_input("Quantity: ", ["null", "int"])
             }
-            orders.add(pub_details)
+            orders.append(pub_details)
+            choice = input("Add more books? (Y/N): ")
 
     else:
         while str.lower(choice) in yes:
             pub_details = {
                 'periodical_id': get_input("Periodical ID: ", ["null"]),
-                'issue': get_input("Issue: ", ["null"]),
+                'issue': get_input("Issue: ", ["null", "int"]),
                 'quantity': get_input("Quantity: ", ["null", "int"])
             }
-            orders.add(pub_details)
-    # call API
+            orders.append(pub_details)
+            choice = input("Add more periodicals? (Y/N): ")
+    response = requests.post(c.new_order, orders)
+    generate_output(response)
 
 
 def bill_distributor():
@@ -75,7 +84,8 @@ def bill_distributor():
     distributor = {
         'distributor_id': get_input("Distributor ID: ", ["null"])
     }
-    # call API
+    response = requests.post(c.new_bill, distributor)
+    generate_output(response)
 
 
 def run_operation(operation):
@@ -92,7 +102,7 @@ def run_operation(operation):
 
 
 def operations():
-    print("Select an operation from the list:\n"
+    print("Select an operation from the list (Enter 0 to exit):\n"
           "1. Enter new distributor\n"
           "2. Update distributor information\n"
           "3. Delete distributor\n"
@@ -103,9 +113,13 @@ def operations():
         operation = input("Enter your choice: ")
         try:
             operation = int(operation)
+            if operation == 0:
+                return
             if operation < MIN_OP or operation > MAX_OP:
                 raise ValueError
             run_operation(operation)
             return
-        except:
+        except Exception as e:
+            traceback.print_exc()
+            time.sleep(1)
             continue

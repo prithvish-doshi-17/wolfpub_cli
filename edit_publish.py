@@ -1,20 +1,21 @@
+import time
+import traceback
+import requests
 from functions import get_input
 from functions import generate_output
-import requests
+import production
+import constants as c
 MIN_OP = 1
-MAX_OP = 9
+MAX_OP = 8
 
 
 def enter_new_publication():
     print("Enter publication information:")
-    publication_details = {
-        'title': get_input("Title: ", ["null"]),
-        'topic': get_input("Topic: ", ["null"]),
-        'publication_date': get_input("Publication Date (MM/DD/YYYY): ", ["null", "date"]),
-        'price': get_input("Price: ", ["null", "float"])
-        # book/periodical info - where do you want it
-    }
-    # call API
+    pub_type = get_input("Is it a book or a periodical? Enter 1 for book, 2 for periodical: ", ["null", "1_2"])
+    if pub_type == "1":
+        production.add_edition()
+    else:
+        production.add_issue()
 
 
 def update_publication():
@@ -26,7 +27,8 @@ def update_publication():
         'publication_date': get_input("Publication Date (MM/DD/YYYY): ", ["date"]),
         'price': get_input("Price: ", [])
     }
-    # call API
+    response = requests.patch(c.update_publication, publication_details)
+    generate_output(response)
 
 
 def assign_editors():
@@ -38,7 +40,8 @@ def assign_editors():
             'publication_id': publication_id,
             'editor': get_input("Editor ID:", ["null"])
         }
-        # call API
+        response = requests.post(c.assign_editor, editor_details)
+        generate_output(response)
 
 
 def view_publications():
@@ -46,44 +49,44 @@ def view_publications():
     editor_details = {
         'editor': get_input("Editor ID:", ["null"])
     }
-    # call API
-
-
-def edit_toc():  # TODO
-    return 0
+    response = requests.get(c.view_publication, editor_details)
+    generate_output(response)
 
 
 def add_article():
     print("Add article to a periodical:")
     article_details = {
-        'publication_id': get_input("Publication ID: ", ["null"]),
-        'creation_date': get_input("Creation Date (MM/DD/YYYY): ", ["null", "date"]),
-        'title': get_input("Title: ", ["null"]),
-        'topic': get_input("Topic: ", ["null"]),
+        "title": get_input("Title: ", ["null"]),
+        "issue": get_input("Issue:", ["null"]),
+        'creation_date': get_input("Creation Date (MM/DD/YYYY): ", ["date"]),
+        'article_title': get_input("Article Title: ", []),
+        'topic': get_input("Topic: ", []),
         'text': get_input("Text: ", [])
-        # not adding journalist name as we are removing that attribute, could see it in serializers though
-        # TODO: Update serializers
     }
-    # call API
+    response = requests.post(c.add_article, article_details)
+    generate_output(response)
 
 
 def delete_article():
     print("Delete article from a periodical:")
     article_details = {
         'publication_id': get_input("Publication ID: ", ["null"]),
-        'article_id': get_input("Publication ID: ", ["null"])
+        'article_id': get_input("Article ID: ", ["null"])
     }
-    # call API
+    response = requests.delete(c.base_url)  # generate URL here
+    generate_output(response)
 
 
 def add_chapter():
-    print("Add article to a periodical:")
+    print("Add chapter to a book:")
     chapter_details = {
-        'publication_id': get_input("Publication ID: ", ["null"]),
-        'chapter_title': get_input("Title: ", ["null"]),
-        'chapter_text': get_input("Text: ", ["null"])
+        "title": get_input("Title: ", ["null"]),
+        "edition": get_input("Edition:", ["null"]),
+        'chapter_title': get_input("Title: ", []),
+        'chapter_text': get_input("Text: ", [])
     }
-    # call API
+    response = requests.post(c.add_chapter, chapter_details)
+    generate_output(response)
 
 
 def delete_chapter():
@@ -92,7 +95,8 @@ def delete_chapter():
         'publication_id': get_input("Publication ID: ", ["null"]),
         'chapter_id': get_input("Chapter ID: ", ["null"])
     }
-    # call API
+    response = requests.delete(c.base_url)  # generate URL here
+    generate_output(response)
 
 
 def run_operation(operation):
@@ -105,36 +109,37 @@ def run_operation(operation):
     elif operation == 4:
         view_publications()
     elif operation == 5:
-        edit_toc()
-    elif operation == 6:
         add_article()
-    elif operation == 7:
+    elif operation == 6:
         delete_article()
-    elif operation == 8:
+    elif operation == 7:
         add_chapter()
-    elif operation == 9:
+    elif operation == 8:
         delete_chapter()
 
 
 def operations():
-    print("Select an operation from the list:\n"
+    print("Select an operation from the list (Enter 0 to exit):\n"
           "1. Enter new publication\n"
           "2. Update a publication\n"
           "3. Assign editor(s) to publication\n"
           "4. View publications related to any editor\n"
-          "5. Edit table of contents of a publication\n"  # TODO
-          "6. Add article for a periodical\n"
-          "7. Delete article from a periodical\n"
-          "8. Add chapter to a book\n"
-          "9. Delete chapter from a book\n")
+          "5. Add article to a periodical\n"
+          "6. Delete article from a periodical\n"
+          "7. Add chapter to a book\n"
+          "8. Delete chapter from a book\n")
 
     while True:
         operation = input("Enter your choice: ")
         try:
             operation = int(operation)
+            if operation == 0:
+                return
             if operation < MIN_OP or operation > MAX_OP:
                 raise ValueError
             run_operation(operation)
             return
-        except:
+        except Exception as e:
+            traceback.print_exc()
+            time.sleep(1)
             continue

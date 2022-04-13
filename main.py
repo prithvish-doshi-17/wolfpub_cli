@@ -34,7 +34,7 @@ if __name__ == '__main__':
                 raise ValueError
             get_operations(task)
 
-            choice = input("Do you want to continue? (Y/N): ")
+            choice = input("Do you want to continue with any other task? (Y/N): ")
         except:
             print("Please enter an integer between 1 and 4\n")
 
