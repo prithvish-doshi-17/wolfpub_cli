@@ -21,7 +21,7 @@ def enter_distributor():
         'contact_email': get_input("Contact email: ", []),
         'periodicity': get_input("Periodicity: ", [])
     }
-    response = requests.post(c.base_url, distributor)
+    response = requests.post(c.new_distributor, distributor)
     generate_output(response)
 
 
