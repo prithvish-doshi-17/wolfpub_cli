@@ -21,7 +21,7 @@ def enter_distributor():
         'contact_email': get_input("Contact email: ", []),
         'periodicity': get_input("Periodicity: ", [])
     }
-    response = requests.post(c.new_distributor, distributor)
+    response = requests.post(c.base_url, distributor)
     generate_output(response)
 
 
@@ -38,7 +38,8 @@ def update_distributor():
         'contact_email': get_input("Contact email: ", []),
         'periodicity': get_input("Periodicity: ", [])
     }
-    response = requests.patch(c.update_distributor, distributor)
+    url = str(c.update_distributor).replace("<distributor_id>", str(distributor["distributor_id"]))
+    response = requests.put(url, distributor)
     generate_output(response)
 
 
@@ -47,12 +48,18 @@ def delete_distributor():
     distributor = {
         'distributor_id': get_input("Distributor ID: ", ["null"])
     }
-    response = requests.delete(c.base_url)  # generate URL here
+    url = str(c.update_distributor).replace("<distributor_id>", str(distributor["distributor_id"]))
+    response = requests.delete(url)
     generate_output(response)
 
 
 def new_order():
     print("Add a new order:")
+    distributor = {
+        "distributor_id": get_input("Distributor ID:", ["null"])
+    }
+    url = str(c.get_distributor).replace("<distributor_id>", str(distributor["distributor_id"]))
+    account_id = requests.get(url)
     pub_type = get_input("What do you want to order? (Enter 1 for Books, 2 for Periodicals): ", ["null", "1_2"])
     choice = "yes"
     orders = []
@@ -75,7 +82,8 @@ def new_order():
             }
             orders.append(pub_details)
             choice = input("Add more periodicals? (Y/N): ")
-    response = requests.post(c.new_order, orders)
+    url = str(c.new_order).replace("<account_id>", str(account_id))
+    response = requests.post(url, orders)
     generate_output(response)
 
 
@@ -84,7 +92,10 @@ def bill_distributor():
     distributor = {
         'distributor_id': get_input("Distributor ID: ", ["null"])
     }
-    response = requests.post(c.new_bill, distributor)
+    url = str(c.get_distributor).replace("<distributor_id>", str(distributor["distributor_id"]))
+    account_id = requests.get(url)
+    url = str(c.new_bill).replace("<account_id>", str(account_id))
+    response = requests.post(url)
     generate_output(response)
 
 

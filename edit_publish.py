@@ -27,7 +27,8 @@ def update_publication():
         'publication_date': get_input("Publication Date (MM/DD/YYYY): ", ["date"]),
         'price': get_input("Price: ", [])
     }
-    response = requests.patch(c.update_publication, publication_details)
+    url = str(c.update_publication).replace("<publication_id>", str(publication_details["publication_id"]))
+    response = requests.put(url, publication_details)
     generate_output(response)
 
 
@@ -40,30 +41,33 @@ def assign_editors():
             'publication_id': publication_id,
             'editor': get_input("Editor ID:", ["null"])
         }
-        response = requests.post(c.assign_editor, editor_details)
+        url = str(c.update_publication).replace("<publication_id>", str(editor_details["publication_id"]))
+        response = requests.post(url, editor_details)  # Double checks here - calls API for one editor at a time,
+                                                       # handler handles max 5. Can remove one of these
         generate_output(response)
 
 
 def view_publications():
-    print("View publications related to an editor:")
-    editor_details = {
-        'editor': get_input("Editor ID:", ["null"])
+    print("View publications related to an author/editor:")
+    employee_details = {
+        'employee_id': get_input("Employee ID:", ["null"])
     }
-    response = requests.get(c.view_publication, editor_details)
+    url = str(c.view_publication).replace("<employee_id>", str(employee_details["employee_id"]))
+    response = requests.put(url, employee_details)
     generate_output(response)
 
 
 def add_article():
     print("Add article to a periodical:")
     article_details = {
-        "title": get_input("Title: ", ["null"]),
-        "issue": get_input("Issue:", ["null"]),
+        "publication_id": get_input("Publication ID: ", ["null"]),
         'creation_date': get_input("Creation Date (MM/DD/YYYY): ", ["date"]),
         'article_title': get_input("Article Title: ", []),
         'topic': get_input("Topic: ", []),
         'text': get_input("Text: ", [])
     }
-    response = requests.post(c.add_article, article_details)
+    url = str(c.add_article).replace("<publication_id>", str(article_details["publication_id"]))
+    response = requests.post(url, article_details)
     generate_output(response)
 
 
@@ -73,19 +77,21 @@ def delete_article():
         'publication_id': get_input("Publication ID: ", ["null"]),
         'article_id': get_input("Article ID: ", ["null"])
     }
-    response = requests.delete(c.base_url)  # generate URL here
+    url = str(c.delete_article).replace("<publication_id>", str(article_details["publication_id"]))
+    url = url.replace("<article_id>", str(article_details["article_id"]))
+    response = requests.delete(url)
     generate_output(response)
 
 
 def add_chapter():
     print("Add chapter to a book:")
     chapter_details = {
-        "title": get_input("Title: ", ["null"]),
-        "edition": get_input("Edition:", ["null"]),
+        "publication_id": get_input("Publication ID: ", ["null"]),
         'chapter_title': get_input("Title: ", []),
         'chapter_text': get_input("Text: ", [])
     }
-    response = requests.post(c.add_chapter, chapter_details)
+    url = str(c.add_article).replace("<publication_id>", str(chapter_details["publication_id"]))
+    response = requests.post(url, chapter_details)
     generate_output(response)
 
 
@@ -95,7 +101,9 @@ def delete_chapter():
         'publication_id': get_input("Publication ID: ", ["null"]),
         'chapter_id': get_input("Chapter ID: ", ["null"])
     }
-    response = requests.delete(c.base_url)  # generate URL here
+    url = str(c.delete_chapter).replace("<publication_id>", str(chapter_details["publication_id"]))
+    url = url.replace("<chapter_id>", str(chapter_details["chapter_id"]))
+    response = requests.delete(url)
     generate_output(response)
 
 

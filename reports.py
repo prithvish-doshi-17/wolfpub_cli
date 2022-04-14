@@ -11,36 +11,25 @@ yes = ["yes", "y"]
 
 def generate_reports():
     print("Generate monthly reports:")
-    # arguments for reports
-    response = requests.post(c.base_url)
+    response = requests.get(c.monthly_report)
     generate_output(response)
 
 
 def total_distributors():
     print("Calculate total distributors:")
-    response = requests.get(c.base_url)
+    response = requests.get(c.distributor_count)
     generate_output(response)
 
 
-def total_revenue():  # check dict keys
+def total_revenue():
     print("Calculate total revenue:")
-    filters = {
-        'city': get_input("City: ", []),
-        'distributor': get_input("Distributor ID:", []),
-        'location': get_input("Location: ", [])
-    }
-    response = requests.get(c.base_url, filters)
+    response = requests.get(c.get_revenue)
     generate_output(response)
 
 
-def total_payments():  # check dict keys
+def total_payments():
     print("Calculate total revenue:")
-    filters = {
-        'start_date': get_input("Start date (MM/DD/YYYY): ", ["null", "date"]),
-        'end_date': get_input("End date (MM/DD/YYYY):", ["null", "date"]),
-        'work_type': get_input("Work type: ", ["null"])
-    }
-    response = requests.get(c.base_url, filters)
+    response = requests.get(c.salary_payments)
     generate_output(response)
 
 

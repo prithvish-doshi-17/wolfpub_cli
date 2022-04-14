@@ -26,9 +26,9 @@ def add_edition():
         "isbn": get_input("ISBN: ", []),
         "creation_date": get_input("Creation Date: ", ["date"]),
     }
-    publication_response = requests.post(c.new_publication, publication_details)
+    publication_response = requests.post(c.new_book, publication_details)
     generate_output(publication_response)
-    book_response = requests.post(c.new_edition, edition)
+    book_response = requests.post(c.new_book, edition)
     generate_output(book_response)
 
 
@@ -39,9 +39,13 @@ def add_issue():
         "issn": get_input("ISSN: ", []),
         "periodical_type": get_input("Type (Enter 1 for Magazine, 2 for Journal): ", ["1_2"]),
     }
-    publication_response = requests.post(c.new_publication, publication_details)
+    if issue["periodical_type"] == 1:
+        issue["periodical_type"] = "Magazine"
+    else:
+        issue["periodical_type"] = "Journal"
+    publication_response = requests.post(c.new_periodical, publication_details)
     generate_output(publication_response)
-    book_response = requests.post(c.new_issue, issue)
+    book_response = requests.post(c.new_periodical, issue)
     generate_output(book_response)
 
 
@@ -53,7 +57,12 @@ def update_edition():
         "creation_date": get_input("Creation Date: ", ["date"]),
         "is_available": get_input("Is it available? (1 for Yes, 2 for No): ", ["1_2"])
     }
-    response = requests.patch(c.update_edition, edition)
+    if edition["is_available"] == 1:
+        edition["is_available"] = "Yes"
+    else:
+        edition["is_available"] = "No"
+    url = str(c.update_publication).replace("<publication_id>", str(edition["publication_id"]))
+    response = requests.put(url, edition)
     generate_output(response)
 
 
@@ -65,7 +74,12 @@ def update_issue():
         "periodical_type": get_input("Type (Enter 1 for Magazine, 2 for Journal): ", ["1_2"]),
         "is_available": get_input("Is it available? (1 for Yes, 2 for No): ", ["1_2"])
     }
-    response = requests.patch(c.update_issue, issue)
+    if issue["is_available"] == 1:
+        issue["is_available"] = "Yes"
+    else:
+        issue["is_available"] = "No"
+    url = str(c.update_publication).replace("<publication_id>", str(issue["publication_id"]))
+    response = requests.put(url, issue)
     generate_output(response)
 
 
@@ -73,21 +87,22 @@ def update_chapter():
     choice = get_input("Enter 1 to add new chapter, 2 to update existing chapter: ", ["null", "1_2"])
     if choice == "1":
         chapter_details = {
-            "title": get_input("Title: ", ["null"]),
-            "edition": get_input("Edition:", ["null"]),
+            "publication_id": get_input("Publication ID: ", ["null"]),
             "chapter_title": get_input("Chapter Title: ", []),
             "chapter_text": get_input("Chapter Text:", [])
         }
-        response = requests.post(c.add_chapter, chapter_details)
+        url = str(c.update_chapter).replace("<publication_id>", str(chapter_details["publication_id"]))
+        response = requests.put(url, chapter_details)
     else:
         chapter_details = {
-            "title": get_input("Title: ", ["null"]),
-            "edition": get_input("Edition:", ["null"]),
+            "publication_id": get_input("Publication ID: ", ["null"]),
             "chapter_id": get_input("Chapter ID:", ["null"]),
             "chapter_title": get_input("Chapter Title: ", []),
             "chapter_text": get_input("Chapter Text:", [])
         }
-        response = requests.patch(c.update_chapter, chapter_details)
+        url = str(c.add_chapter).replace("<publication_id>", str(chapter_details["publication_id"]))
+        url = url.replace("<chapter_id>", str(chapter_details["chapter_id"]))
+        response = requests.put(url, chapter_details)
     generate_output(response)
 
 
@@ -95,37 +110,39 @@ def update_article():
     choice = get_input("Enter 1 to add new article, 2 to update existing article: ", ["null", "1_2"])
     if choice == "1":
         article_details = {
-            "title": get_input("Title: ", ["null"]),
-            "issue": get_input("Issue:", ["null"]),
+            "publication_id": get_input("Publication ID: ", ["null"]),
             'creation_date': get_input("Creation Date (MM/DD/YYYY): ", ["date"]),
             'article_title': get_input("Title: ", []),
             'topic': get_input("Topic: ", []),
             'text': get_input("Text: ", [])
         }
-        response = requests.post(c.add_article, article_details)
+        url = str(c.update_article).replace("<publication_id>", str(article_details["publication_id"]))
+        response = requests.put(url, article_details)
     else:
         article_details = {
-            "title": get_input("Title: ", ["null"]),
-            "issue": get_input("Issue:", ["null"]),
+            "publication_id": get_input("Publication ID: ", ["null"]),
             'article_id': get_input("Article ID: ", ["null"]),
             'creation_date': get_input("Creation Date (MM/DD/YYYY): ", ["date"]),
             'article_title': get_input("Title: ", []),
             'topic': get_input("Topic: ", []),
             'text': get_input("Text: ", [])
         }
-        response = requests.patch(c.update_article, article_details)
+        url = str(c.add_article).replace("<publication_id>", str(article_details["publication_id"]))
+        url = url.replace("<article_id>", str(article_details["article_id"]))
+        response = requests.put(url, article_details)
     generate_output(response)
 
 
 def update_article_text():
     print("Enter/Update article text:")
     article_text = {
-        "title": get_input("Title: ", ["null"]),
-        "issue": get_input("Issue:", ["null"]),
+        "publication_id": get_input("Publication ID: ", ["null"]),
         'article_id': get_input("Publication ID: ", ["null"]),
-        'text': get_input("Text: ", ["null"])
+        'text': get_input("Text: ", [])
     }
-    response = requests.patch(c.update_article, article_text)
+    url = str(c.add_article).replace("<publication_id>", str(article_text["publication_id"]))
+    url = url.replace("<article_id>", str(article_text["article_id"]))
+    response = requests.put(url, article_text)
     generate_output(response)
 
 
@@ -136,7 +153,7 @@ def find_book():
         'date': get_input("Date: ", ["date"]),
         'author': get_input("Author's name:", [])
     }
-    response = requests.get(c.get_book, book_filter)
+    response = requests.get(c.get_content, book_filter)
     generate_output(response)
 
 
@@ -147,7 +164,7 @@ def find_article():
         'date': get_input("Date: ", ["date"]),
         'author': get_input("Author's name:", [])
     }
-    response = requests.get(c.get_article, article_filter)
+    response = requests.get(c.get_content, article_filter)
     generate_output(response)
 
 
@@ -159,17 +176,18 @@ def add_payment():
         'amount': get_input("Amount: ", ["null", "float"]),
         'send_date': get_input("Payment sent date: ", ["null", "date"]),
     }
-    response = requests.post(c.add_payment, payment)
+    response = requests.post(c.add_salary, payment)
     generate_output(response)
 
 
 def claim_payment():
     print("Claim a payment by author/editor:")
     payment = {
-        'employee_id': get_input("Employee ID: ", ["null"]),
+        'transaction_id': get_input("Transaction ID: ", ["null"]),
         'received_date': get_input("Payment claim date: ", ["null", "date"])
     }
-    response = requests.patch(c.update_payment, payment)
+    url = str(c.update_salary).replace("<transaction_id>", str(payment["transaction_id"]))
+    response = requests.post(url, payment)
     generate_output(response)
 
 
